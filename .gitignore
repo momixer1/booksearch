@@ -1,0 +1,9 @@
+# .gitignore
+*.csv
+*.parquet
+*.npy
+*.pt
+*.pkl
+venv/
+__pycache__/
+.env
