@@ -32,6 +32,7 @@ books = books.sort_values(by="RatingDistTotal", ascending=False)
 books = books.drop_duplicates(subset=["Name", "Authors"], keep="first")
 books = books.iloc[:25000]
 
+books.fillna("")
 
 
 books.to_csv("clean_books.csv", index=False)
