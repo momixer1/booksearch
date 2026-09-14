@@ -53,10 +53,11 @@ def get_results(search_query:str, top_n: int=5):
         book_data = {
             "rank": i+1,
             "name": books["Name"].iloc[idx],
-            "score": round(float(sigmoid(top_scores[i]+3) * 100), 4)
+            "score": round(float(sigmoid(top_scores[i]+3) * 100), 4),
+            "Id": books["Id"].iloc[idx]
         }
         recommendations.append(book_data)
-        
+
     return recommendations
 
 def sigmoid(x):
@@ -64,9 +65,9 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-while True:
-    print('-' * 50)
-    results = get_results(input("What type of book are you looking for? "), 10)
-    for book in results:
-        print('-' * 50)
-        print(f"{book['rank']}: {book['name']} | score: {book['score']}%")
+# while True:
+#     print('-' * 50)
+#     results = get_results(input("What type of book are you looking for? "), 10)
+#     for book in results:
+#         print('-' * 50)
+#         print(f"{book['rank']}: {book['name']} | score: {book['score']}%")
