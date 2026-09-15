@@ -43,9 +43,11 @@ def get_results(search_query:str, top_n: int=5):
     raw_cross_scores = cross_encoder.predict([(search_query, desc) for desc in candidate_descriptions])
 
     sorted_cross_scores = np.argsort(raw_cross_scores)[::-1]
-    top_cross_indicies = sorted_cross_scores[:top_n]
+    new_scores = np.argsort(sigmoid(raw_cross_scores) * ( 0.7 + 0.3 *(books["RatingDist5"][top_indicies[sorted_cross_scores]]/books["RatingDistTotal"][top_indicies[sorted_cross_scores]])))[::-1]
+    top_cross_indicies = new_scores[:top_n]
     top_scores = raw_cross_scores[top_cross_indicies].tolist()
     final_indicies = top_indicies[top_cross_indicies]
+
 
     recommendations = []
     for i in range(top_n):
