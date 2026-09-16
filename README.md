@@ -4,6 +4,8 @@ A two-stage neural information retrieval system that lets users discover books b
 
 Built with **PyTorch**, **SentenceTransformers**, **FastAPI**, and a retro-editorial vanilla web frontend.
 
+book data from: https://www.kaggle.com/datasets/bahramjannesarr/goodreads-book-datasets-10m/versions/5
+
 ---
 
 ## Architecture Overview
@@ -74,8 +76,8 @@ The retrieval pipeline is evaluated using a custom multilingual test suite (Engl
 ### 1. Prerequisites & Installation
 
 ```bash
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+git clone https://github.com/momixer1/booksearch.git
+cd booksearch
 
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 pip install sentence-transformers pandas numpy fastapi uvicorn
