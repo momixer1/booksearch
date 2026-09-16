@@ -31,11 +31,10 @@ embeddings_gpu = torch.tensor(embeddings, device=device)
 
 def get_results(search_query:str, top_n: int=5):
 
-    scores = model.similarity(
-        embeddings1=embeddings_gpu,
-        embeddings2=torch.tensor(model.encode(search_query, prompt="query: ",  device=device).reshape(1, -1)).to(device)
-    ).squeeze()
+    query_emb = model.encode(search_query, prompt="query: ", convert_to_tensor=True, device=device)
 
+    scores = model.similarity(embeddings_gpu, query_emb).squeeze()
+    
     top_scores, top_indicies = torch.topk(scores, top_n * 5)
     top_indicies = top_indicies.cpu().numpy()
 
@@ -43,20 +42,36 @@ def get_results(search_query:str, top_n: int=5):
     raw_cross_scores = cross_encoder.predict([(search_query, desc) for desc in candidate_descriptions])
 
     sorted_cross_scores = np.argsort(raw_cross_scores)[::-1]
-    new_scores = np.argsort(sigmoid(raw_cross_scores) * ( 0.7 + 0.3 *(books["RatingDist5"][top_indicies[sorted_cross_scores]]/books["RatingDistTotal"][top_indicies[sorted_cross_scores]])))[::-1]
-    top_cross_indicies = new_scores[:top_n]
-    top_scores = raw_cross_scores[top_cross_indicies].tolist()
-    final_indicies = top_indicies[top_cross_indicies]
+
+    percent_5s = books["RatingDist5"][top_indicies[sorted_cross_scores]]/books["RatingDistTotal"][top_indicies[sorted_cross_scores]]
+    avg_ratings = np.asarray(books["Rating"][top_indicies[sorted_cross_scores]])
+
+    relevance_prob = sigmoid(raw_cross_scores)
+    combined = relevance_prob * ( 0.7 + 0.3 * sigmoid(avg_ratings) + 0.0 * percent_5s)[::-1]
+    combined = np.asarray(combined)
+
+    ranked_order = np.argsort(combined)[::-1]
+    top_cross_indicies = np.asarray(ranked_order[:top_n])
+    final_indicies = np.asarray(top_indicies)[top_cross_indicies]
 
 
     recommendations = []
     for i in range(top_n):
+        cand_pos = top_cross_indicies[i]
         idx = final_indicies[i]
+        match_percentage = round(float(sigmoid(raw_cross_scores+5)[cand_pos] * 100), 1)
+        stars = round(float(avg_ratings[cand_pos]), 2)
+
         book_data = {
-            "rank": i+1,
-            "name": books["Name"].iloc[idx],
-            "score": round(float(sigmoid(top_scores[i]+3) * 100), 4),
-            "Id": books["Id"].iloc[idx]
+            "rank": int(i+1),
+            "title": str(books["Name"].iloc[idx]),
+            "author": str(books["Authors"].iloc[idx]),
+            "year": str(books["PublishYear"].iloc[idx]),
+            "score": f"{match_percentage}%",
+            "lang": str(books["Language"].iloc[idx]),
+            "desc": str(books["Description"].iloc[idx]),
+            "rating": f"{stars} / 5.0",
+            "Id": int(books["Id"].iloc[idx])
         }
         recommendations.append(book_data)
 
@@ -67,9 +82,3 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-# while True:
-#     print('-' * 50)
-#     results = get_results(input("What type of book are you looking for? "), 10)
-#     for book in results:
-#         print('-' * 50)
-#         print(f"{book['rank']}: {book['name']} | score: {book['score']}%")
