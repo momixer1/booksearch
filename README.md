@@ -106,4 +106,3 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 - [ ] **Vector Indexing (HNSW / FAISS):** Replace dense linear scans with Approximate Nearest Neighbor (ANN) graphs to support 500,000+ titles.
 - [ ] **Learning to Rank (LTR):** Replace the Stage 3 metadata heuristic with a LambdaMART model (via LightGBM) trained on click logs.
 - [ ] **Embedding Quantization:** Compress vectors from `float32` to `int8` to reduce VRAM consumption by 75%.
-```
