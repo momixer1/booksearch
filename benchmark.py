@@ -1,5 +1,6 @@
 from engine import get_results
 import numpy as np
+import time
 
 def mrr(results:list, target: str):
     for book in results:
@@ -27,10 +28,13 @@ queries = [["Harry Potter's first year at Hogwarts", "Harry Potter and the Sorce
             ["playful rhyming children's book introducing toddlers to whimsical pets and silly creatures", "Wet Pet, Dry Pet, Your Pet, My Pet"],
             ["memoir of a pioneer woman enduring hardships and the wagon journey westward during the California Gold Rush", "Frontier Lady"]]
 
-
+durations = []
 print("evaluating...")
 for i in range(len(queries)):
+    start_time = time.perf_counter()
     mrr_score.append(mrr(get_results(queries[i][0], 10), queries[i][1]))
+    end_time = time.perf_counter()
+    durations.append(end_time - start_time)
     # print('-' * 50)
     # results = get_results(queries[i][0], 10)
     # for book in results:
@@ -38,4 +42,5 @@ for i in range(len(queries)):
     #     print(f"{book['rank']}: {book['name']} | score: {book['score']}%")
 
 print(mrr_score)
-print(f"MRR @ 10: {np.mean(mrr_score)}")
+print(f"MRR @ 10: {round(np.mean(mrr_score), 4)}")
+print(f"Average time: {round(np.mean(durations), 4)}s")
